@@ -48,8 +48,8 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     }
 
     response = send_prompt(f"""
-    Given the start month {months[start_month]} and end month {months[end_month]}, generate a list of the top 5 destinations for a {trip_type} trip in the given time period.\n
-    The list should be 5 lines long, with each line containing the name of a destination and the country it is in.
+    Given the start month {months[start_month]} and end month {months[end_month]}, generate a list of the top 10 destinations for a {trip_type} trip in the given time period.\n
+    The list should be 10 lines long, with each line containing the name of a destination and the country it is in.
     Do not include any other information in your response.
     The format should be:
     <destination>,<nearest_city_with_airport>,<country>
@@ -57,8 +57,14 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     <destination>,<nearest_city_with_airport>,<country>
     <destination>,<nearest_city_with_airport>,<country>
     <destination>,<nearest_city_with_airport>,<country>
+    <destination>,<nearest_city_with_airport>,<country>
+    <destination>,<nearest_city_with_airport>,<country>
+    <destination>,<nearest_city_with_airport>,<country>
+    <destination>,<nearest_city_with_airport>,<country>
+    <destination>,<nearest_city_with_airport>,<country>
     Where <destination> is the name of the destination, <nearest_city_with_airport> is the nearest city with an airport, and <country> is the country it is in.
-    """).split("\n")[:5]
+    Make sure to exclude any commas in the destination or nearest_city_with_airport or country names.
+    """).split("\n")[:10]
     print(f"response is: {response}")
     for destination in response:
         destination_name, destination_city, destination_country = destination.split(",")  # nopep8
@@ -68,7 +74,10 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
 
 
 def search_flights(destinations: list, start_date: str, end_date: str):
+    valid_flights_counter = 0
     for destination in destinations:
+        if valid_flights_counter == 5:
+            break
 
         with open('airports-code.json', 'r') as file:
             airport_codes = json.load(file)
@@ -83,33 +92,81 @@ def search_flights(destinations: list, start_date: str, end_date: str):
         if not destination_airport_code:
             print(f"Could not find airport code for {destination_city}, {destination_country}")  # nopep8
             continue
-        flight_search_params = {
+        from_TLV_flight_search_params = {
             "engine": "google_flights",
             "departure_id": "TLV",
             "arrival_id": destination_airport_code,
             "outbound_date": start_date,
-            "return_date": end_date,
+            # "return_date": end_date,
             "currency": "USD",
             "hl": "en",
-            "api_key": SERPAPI_KEY
+            "api_key": SERPAPI_KEY,
+            "type": "2"
         }
-        flight_search = GoogleSearch(flight_search_params)
+        flight_search = GoogleSearch(from_TLV_flight_search_params)
         # Perform the flight search and store the results
         results = flight_search.get_dict()
 
+        # save the results to a json file
+        with open('from_TLV_flight_search_results.json', 'w') as file:
+            json.dump(results, file, indent=4)
+
+        # Check if there was an error with the flight search
+        if 'error' in results.keys():
+            print(f"Error: {results['error']} from TLV")
+            continue
+        # else:
+        from_TLV_cheapest_flight = results['best_flights'][0]
+
+        to_TLV_flight_search_params = {
+            "engine": "google_flights",
+            "departure_id": destination_airport_code,
+            "arrival_id": "TLV",
+            "outbound_date": end_date,
+            # "return_date": end_date,
+            "currency": "USD",
+            "hl": "en",
+            "api_key": SERPAPI_KEY,
+            "type": "2",
+            # "departure_token": from_TLV_cheapest_flight['departure_token']
+        }
+        flight_search = GoogleSearch(to_TLV_flight_search_params)
+        # Perform the flight search and store the results
+        results = flight_search.get_dict()
+
+        # save the results to a json file
+        with open('to_TLV_flight_search_results.json', 'w') as file:
+            json.dump(results, file, indent=4)
+
+        # Check if there was an error with the flight search
+        if 'error' in results.keys():
+            print(f"Error: {results['error']} to TLV")
+            continue
+        # else:
+        to_TLV_cheapest_flight = results['best_flights'][0]
+
         # Define the filename for the JSON output
-        json_filename = f"{destination_city}_{
-            destination_country}_flights.json"
+        json1_filename = f"From TLV to {destination_city}_{destination_country}_flight.json"  # nopep8
+
+        # Define the filename for the JSON output
+        json2_filename = f"From {destination_city}_{destination_country} to TLV_flight.json"  # nopep8
 
         # Write the results to a JSON file
-        with open(json_filename, 'w') as json_file:
-            json.dump(results, json_file, indent=4)
+        with open(json1_filename, 'w') as json_file:
+            json.dump(from_TLV_cheapest_flight, json_file, indent=4)
+        print(f"Saved flight data for {destination_city}, {destination_country} to {json1_filename}")  # nopep8
 
-        print(f"Saved flight data for {destination_city}, {destination_country} to {json_filename}")  # nopep8
+        # Write the results to a JSON file
+        with open(json2_filename, 'w') as json_file:
+            json.dump(to_TLV_cheapest_flight, json_file, indent=4)
+        print(f"Saved flight data for {destination_city}, {destination_country} to {json2_filename}")  # nopep8
+
+        # Increment the counter of valid flights
+        valid_flights_counter += 1
 
 
 def main():
-    destinations = get_top_5_destinations(1, 2, "ski")
+    destinations = get_top_5_destinations(1, 2, "beach")
     search_flights(destinations, "2025-01-16", "2025-02-10")
 
 
