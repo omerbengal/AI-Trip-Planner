@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 import json
 from serpapi import GoogleSearch
@@ -48,8 +49,7 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     }
 
     response = send_prompt(f"""
-    Given the start month {months[start_month]} and end month {months[end_month]}, generate a list of the top 10 destinations for a {trip_type} trip in the given time period.\n
-    The list should be 10 lines long, with each line containing the name of a destination and the country it is in.
+    Given the start month {months[start_month]} and end month {months[end_month]}, generate a list of the top 10 destinations for a {trip_type} vacation in the given time of the year.\n
     Do not include any other information in your response.
     The format should be:
     <destination>,<nearest_city_with_airport>,<country>
@@ -62,10 +62,9 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     <destination>,<nearest_city_with_airport>,<country>
     <destination>,<nearest_city_with_airport>,<country>
     <destination>,<nearest_city_with_airport>,<country>
-    Where <destination> is the name of the destination, <nearest_city_with_airport> is the nearest city with an airport, and <country> is the country it is in.
+    Where <destination> is the name of the destination, <nearest_city_with_airport> is the nearest city with an airport, and <country> is the country of the destination.
     Make sure to exclude any commas in the destination or nearest_city_with_airport or country names.
     """).split("\n")[:10]
-    print(f"response is: {response}")
     for destination in response:
         destination_name, destination_city, destination_country = destination.split(",")  # nopep8
         final_list.append((destination_name.strip(), destination_city.strip(), destination_country.strip()))  # nopep8
@@ -178,6 +177,50 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
         flights[(destination[0], destination[1], destination[2])] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], total_flights_price]  # nopep8
 
     return flights
+
+
+def search_hotels(destinations: dict, start_date: str, end_date: str) -> dict:
+    hotels = {}
+    for key, destination in destinations.items():
+        destination_name = key[0]
+        destination_country = key[2]
+        hotel_search_params = {
+            "engine": "google_hotels",
+            "q": f"{destination_name}, {destination_country}",
+            "check_in_date": start_date,
+            "check_out_date": end_date,
+            "adults": "1",
+            "currency": "USD",
+            "hl": "en",
+            "api_key": SERPAPI_KEY
+        }
+
+        hotel_search = GoogleSearch(hotel_search_params)
+        results = hotel_search.get_dict()
+        if 'error' in results.keys():
+            hotels[(key[0], key[1], key[2])] = None
+        else:
+            with open(f"{key[0]}_{key[1]}_{key[2]}_hotels.json", 'w') as file:
+                json.dump(results, file, indent=4)
+            hotels[(key[0], key[1], key[2])] = [results['properties'], destination[1]]  # nopep8
+    return hotels
+
+
+def get_most_expensive_hotel(hotels: dict):
+    max_price = 0
+    max_hotel = None
+    for key, hotel_and_leftover_budget in hotels.items():
+        if 'total_rate' not in hotel_and_leftover_budget[0].keys():
+            continue
+        hotel_price = hotel_and_leftover_budget[0]['total_rate']['extracted_lowest']
+        if hotel_price <= hotel_and_leftover_budget[1] and hotel_price > max_price:
+            max_price = hotel_price
+            max_hotel = hotel_and_leftover_budget[0]
+
+    if max_hotel is None:
+        return None
+
+    return max_hotel
 
 
 def main():
