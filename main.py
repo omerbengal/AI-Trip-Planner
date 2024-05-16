@@ -3,7 +3,7 @@ import json
 from serpapi import GoogleSearch
 import requests
 
-SERPAPI_KEY = 'ded3755328a61b8898f80062bb463325013e4eab8823c5dbc730c7f5cf784014'
+SERPAPI_KEY = 'c76e561255457269b252f96015c08787cc3344c26115373841fbe69295c684e5'
 
 
 def send_prompt(prompt):
@@ -73,11 +73,9 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     return final_list
 
 
-def search_flights(destinations: list, start_date: str, end_date: str):
-    valid_flights_counter = 0
+def search_flights(destinations: list, start_date: str, end_date: str, budget: int) -> dict:
+    flights = {}
     for destination in destinations:
-        if valid_flights_counter == 5:
-            break
 
         with open('airports-code.json', 'r') as file:
             airport_codes = json.load(file)
@@ -115,8 +113,12 @@ def search_flights(destinations: list, start_date: str, end_date: str):
         if 'error' in results.keys():
             print(f"Error: {results['error']} from TLV")
             continue
-        # else:
-        from_TLV_cheapest_flight = results['best_flights'][0]
+        elif 'best_flights' in results.keys():
+            from_TLV_cheapest_flight = results['best_flights'][0]
+
+        # else
+        else:
+            from_TLV_cheapest_flight = results['other_flights'][0]
 
         to_TLV_flight_search_params = {
             "engine": "google_flights",
@@ -142,8 +144,20 @@ def search_flights(destinations: list, start_date: str, end_date: str):
         if 'error' in results.keys():
             print(f"Error: {results['error']} to TLV")
             continue
-        # else:
-        to_TLV_cheapest_flight = results['best_flights'][0]
+
+        elif 'best_flights' in results.keys():
+            to_TLV_cheapest_flight = results['best_flights'][0]
+
+        # else
+        else:
+            to_TLV_cheapest_flight = results['other_flights'][0]
+
+        # check if sum of the two flights prices is within budget
+        total_flights_price = from_TLV_cheapest_flight['price'] + to_TLV_cheapest_flight['price']  # nopep8
+        if total_flights_price > budget:  # nopep8
+            print(
+                f"Total price of flights to {destination_city}, {destination_country} and back is above budget")
+            continue
 
         # Define the filename for the JSON output
         json1_filename = f"From TLV to {destination_city}_{destination_country}_flight.json"  # nopep8
@@ -161,13 +175,13 @@ def search_flights(destinations: list, start_date: str, end_date: str):
             json.dump(to_TLV_cheapest_flight, json_file, indent=4)
         print(f"Saved flight data for {destination_city}, {destination_country} to {json2_filename}")  # nopep8
 
-        # Increment the counter of valid flights
-        valid_flights_counter += 1
+        flights[(destination[0], destination[1], destination[2])] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], total_flights_price]  # nopep8
+
+    return flights
 
 
 def main():
-    destinations = get_top_5_destinations(1, 2, "beach")
-    search_flights(destinations, "2025-01-16", "2025-02-10")
+    pass
 
 
 if __name__ == "__main__":
