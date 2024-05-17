@@ -4,7 +4,7 @@ import json
 from serpapi import GoogleSearch
 import requests
 
-SERPAPI_KEY = 'c76e561255457269b252f96015c08787cc3344c26115373841fbe69295c684e5'
+SERPAPI_KEY = 'a795fe45c309b69e0bfd8bb04a05be9a3e2410a9df195dd64d13f15708461e30'
 
 
 def send_prompt(prompt):
@@ -105,12 +105,13 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
         results = flight_search.get_dict()
 
         # save the results to a json file
-        with open('from_TLV_flight_search_results.json', 'w') as file:
-            json.dump(results, file, indent=4)
+        # with open('from_TLV_flight_search_results.json', 'w') as file:
+        # json.dump(results, file, indent=4)
 
         # Check if there was an error with the flight search
         if 'error' in results.keys():
-            print(f"Error: {results['error']} from TLV")
+            print(
+                f"Error: {destination[0]} {destination[1]} {destination[2]} from TLV")
             continue
         elif 'best_flights' in results.keys():
             from_TLV_cheapest_flight = results['best_flights'][0]
@@ -136,12 +137,13 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
         results = flight_search.get_dict()
 
         # save the results to a json file
-        with open('to_TLV_flight_search_results.json', 'w') as file:
-            json.dump(results, file, indent=4)
+        # with open('to_TLV_flight_search_results.json', 'w') as file:
+        # json.dump(results, file, indent=4)
 
         # Check if there was an error with the flight search
         if 'error' in results.keys():
-            print(f"Error: {results['error']} to TLV")
+            print(
+                f"Error: {destination[0]} {destination[1]} {destination[2]} to TLV")
             continue
 
         elif 'best_flights' in results.keys():
@@ -159,22 +161,22 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
             continue
 
         # Define the filename for the JSON output
-        json1_filename = f"From TLV to {destination_city}_{destination_country}_flight.json"  # nopep8
+        # json1_filename = f"From TLV to {destination[0]}_{destination_city}_{destination_country}_flight.json"  # nopep8
 
         # Define the filename for the JSON output
-        json2_filename = f"From {destination_city}_{destination_country} to TLV_flight.json"  # nopep8
+        # json2_filename = f"From {destination[0]}_{destination_city}_{destination_country} to TLV_flight.json"  # nopep8
 
         # Write the results to a JSON file
-        with open(json1_filename, 'w') as json_file:
-            json.dump(from_TLV_cheapest_flight, json_file, indent=4)
-        print(f"Saved flight data for {destination_city}, {destination_country} to {json1_filename}")  # nopep8
+        # with open(json1_filename, 'w') as json_file:
+            # json.dump(from_TLV_cheapest_flight, json_file, indent=4)
+        # print(f"Saved flight data for {destination[0]}_{destination_city}, {destination_country} to {json1_filename}")  # nopep8
 
         # Write the results to a JSON file
-        with open(json2_filename, 'w') as json_file:
-            json.dump(to_TLV_cheapest_flight, json_file, indent=4)
-        print(f"Saved flight data for {destination_city}, {destination_country} to {json2_filename}")  # nopep8
+        # with open(json2_filename, 'w') as json_file:
+        #     json.dump(to_TLV_cheapest_flight, json_file, indent=4)
+        # print(f"Saved flight data for {destination[0]}_{destination_city}, {destination_country} to {json2_filename}")  # nopep8
 
-        flights[(destination[0], destination[1], destination[2])] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], total_flights_price]  # nopep8
+        flights['@'.join((destination[0], destination[1], destination[2]))] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], budget - total_flights_price]  # nopep8
 
     return flights
 
@@ -182,8 +184,8 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
 def search_hotels(destinations: dict, start_date: str, end_date: str) -> dict:
     hotels = {}
     for key, destination in destinations.items():
-        destination_name = key[0]
-        destination_country = key[2]
+        destination_name = key.split('@')[0]
+        destination_country = key.split('@')[2]
         hotel_search_params = {
             "engine": "google_hotels",
             "q": f"{destination_name}, {destination_country}",
@@ -198,24 +200,27 @@ def search_hotels(destinations: dict, start_date: str, end_date: str) -> dict:
         hotel_search = GoogleSearch(hotel_search_params)
         results = hotel_search.get_dict()
         if 'error' in results.keys():
-            hotels[(key[0], key[1], key[2])] = None
+            hotels[key] = None
         else:
-            with open(f"{key[0]}_{key[1]}_{key[2]}_hotels.json", 'w') as file:
-                json.dump(results, file, indent=4)
-            hotels[(key[0], key[1], key[2])] = [results['properties'], destination[1]]  # nopep8
+            # with open(f"{key[0]}_{key[1]}_{key[2]}_hotels.json", 'w') as file:
+            #     json.dump(results, file, indent=4)
+            hotels[key] = [results['properties'], destination[1]]  # nopep8
     return hotels
 
 
 def get_most_expensive_hotel(hotels: dict):
-    max_price = 0
-    max_hotel = None
-    for key, hotel_and_leftover_budget in hotels.items():
-        if 'total_rate' not in hotel_and_leftover_budget[0].keys():
+    max_hotel = {}
+    for key, hotels_and_leftover_budget in hotels.items():
+        max_price = 0
+        if hotels_and_leftover_budget is None:
             continue
-        hotel_price = hotel_and_leftover_budget[0]['total_rate']['extracted_lowest']
-        if hotel_price <= hotel_and_leftover_budget[1] and hotel_price > max_price:
-            max_price = hotel_price
-            max_hotel = hotel_and_leftover_budget[0]
+        for hotel in hotels_and_leftover_budget[0]:
+            if 'total_rate' not in hotel.keys():
+                continue
+            hotel_price = hotel['total_rate']['extracted_lowest']
+            if hotel_price > max_price and hotels_and_leftover_budget[1] >= hotel_price:  # nopep8
+                max_price = hotel_price
+                max_hotel[key] = hotel
 
     if max_hotel is None:
         return None
@@ -224,7 +229,25 @@ def get_most_expensive_hotel(hotels: dict):
 
 
 def main():
-    pass
+    start_month = 9
+    end_month = 9
+    trip_type = "beach"
+    destinations = get_top_5_destinations(start_month, end_month, trip_type)
+    print(destinations)
+    start_date = "2024-09-01"
+    end_date = "2024-09-15"
+    budget = 3000
+    flights = search_flights(destinations, start_date, end_date, budget)
+    hotels = search_hotels(flights, start_date, end_date)
+    most_expensive_hotel = get_most_expensive_hotel(hotels)
+
+    # save flights, hotels and most expensive hotel to json files
+    with open('flights.json', 'w') as file:
+        json.dump(flights, file, indent=4)
+    with open('hotels.json', 'w') as file:
+        json.dump(hotels, file, indent=4)
+    with open('most_expensive_hotel.json', 'w') as file:
+        json.dump(most_expensive_hotel, file, indent=4)
 
 
 if __name__ == "__main__":
