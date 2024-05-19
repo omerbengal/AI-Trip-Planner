@@ -1,8 +1,5 @@
-from datetime import datetime
-import requests
 import json
 from serpapi import GoogleSearch
-import requests
 from openai import OpenAI
 import unicodedata
 
@@ -135,15 +132,15 @@ def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_an
     Each <activity> is an activity that can be done in the location or nearby at the specified time of year.
     I put 2 activity tags in each day, but you can put less or more depending on the time it takes to do them.
     N is the number of days in the trip.
-    Each <moment> is a chosen activity (out of the activities you provided) which represents the best and beautiful moments of the trip.
+    The 4 <moment> tags represents the 4 most thrilling, exciting, beautiful and fun activities (out of the activities you provided) which represents the best potential moments of the vacation.
 
     Some considerations:
     Take into consideration the time of the day when the arrival and departure are.
     Make sure to include a variety of activities that cater to different interests and preferences.
-    Also notice that like any other human - I need to relax, eat, and sleep. So make sure to include some relaxing activities and time to eat and sleep.
+    Also notice that like any other human - I need to eat, and sleep. So make sure to include some relaxing activities and time to eat (breakfast, lunch and dinner) and sleep.
     """
 
-    response = send_prompt(prompt)
+    response = send_prompt(prompt2)
     return response
 
 
@@ -317,12 +314,14 @@ def get_most_expensive_hotels(hotels: dict) -> dict:
 
 
 def get_dalle_images(activity: str, country: str, gender: str) -> str:
+    prompt = f"""I am going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
+    I could use your image generating skills to help me understand and feel the amazing moment I am going to have.
+    Please generate an image of the activity. Make sure it looks real - don't exaggerate...
+    Also - the image should not contain me, only the activity and maybe people that are needed for the activity (such as a show or an instructor, etc)."""
+
     response = OPENAI_CLIENT.images.generate(
         model="dall-e-3",
-        # prompt=f"""Here is an activity that represents a beautiful moment of a trip to {country}: {activity}\nGenerate an image of the activity. This image should emphasise the true beauty of the trip, but make sure it looks real - don't exaggerate...\nIn addition, take into consideration that the person in the trip is traveling solo.""",  # nopep8
-        prompt=f"""I am a {gender}, and I am going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
-        I could use your image generating skills to help me understand and feel the amazing moment I am going to have.
-        Please generate an image of the activity. Make sure it looks real - don't exaggerate...""",  # nopep8
+        prompt=prompt,  # nopep8
         size="1024x1024",
         quality="standard",
         n=1,
@@ -345,23 +344,20 @@ def main():
     end_date = "2024-09-15"
     budget = 3000
     flights = search_flights(destinations, start_date, end_date, budget)
+    # with open('flights.json', 'w') as file:
+    #     json.dump(flights, file, indent=4)
     hotels = search_hotels(flights, start_date, end_date)
+    # with open('hotels.json', 'w') as file:
+    #     json.dump(hotels, file, indent=4)
     most_expensive_hotels = get_most_expensive_hotels(hotels)
-
-    # save flights, hotels and most expensive hotel to json files
-    with open('flights.json', 'w') as file:
-        json.dump(flights, file, indent=4)
-    with open('hotels.json', 'w') as file:
-        json.dump(hotels, file, indent=4)
-    with open('most_expensive_hotel.json', 'w') as file:
-        json.dump(most_expensive_hotels, file, indent=4)
-
+    # with open('most_expensive_hotel.json', 'w') as file:
+    #     json.dump(most_expensive_hotels, file, indent=4)
     for key, value in most_expensive_hotels.items():
         print(f"Destination: {key}")
 
     chosen_dest = input(
         "Enter the destination you would like to get a daily plan for: ")
-    gender = input("M/F: ")
+    gender = input("Male/Female? ")
     arrival_date = flights[chosen_dest][0][0]['flights'][len(flights[chosen_dest][0][0]['flights']) - 1]['arrival_airport']['time']  # nopep8
     print(arrival_date)
     departure_date = flights[chosen_dest][0][1]['flights'][0]['departure_airport']['time']  # nopep8
