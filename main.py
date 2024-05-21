@@ -3,10 +3,13 @@ from serpapi import GoogleSearch
 from openai import OpenAI
 import unicodedata
 
-SERPAPI_KEY = '3430d3c96668875ecbffc4dfa2c46f373322f1b6825540394a11355701c75160'
-OPENAI_CLIENT = OpenAI(
-    api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt"
-)
+SERPAPI_KEY = '32383635dd8a34f9ec6dc20c43f2962bbf9bfb347154d4a72a13e55d988e3ed8'
+OPENAI_CLIENT = OpenAI(api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt")  # nopep8
+
+
+def upload_file_to_open_ai(file_path: str) -> str:
+    response = OPENAI_CLIENT.files.create(file=open(file_path, 'rb'), purpose='assistants')  # nopep8
+    return response.id
 
 
 def send_prompt(prompt) -> str:
@@ -42,7 +45,7 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
         12: "December"
     }
 
-    response = send_prompt(f"""
+    prompt = f"""
     Given the start month {months[start_month]} and end month {months[end_month]}, generate a list of the top 10 destinations for a {trip_type} vacation in the given time of the year.\n
     Do not include any other information in your response.
     The format should be:
@@ -59,7 +62,17 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     Where <destination> is the name of the destination, <nearest_city_with_airport> is the nearest city with an airport, and <country> is the country of the destination.
     Make sure to exclude any commas in the destination or nearest_city_with_airport or country names.
     Try to suggest nearest city with an airport that are well-known and have international airports.
-    """).split("\n")[:10]
+    """
+
+    file_id = upload_file_to_open_ai('airports-code.json')
+
+    if file_id:
+        prompt += f"""\n\nHere is the file id for airports code of cities around the world: {file_id}
+        Use this file as a reference to find the correct name of a nearest city with an airport for each destination.
+        Also - use this file as a reference to find the correct name of the country for each destination.
+        """
+
+    response = send_prompt(prompt).split("\n")[:10]
     for destination in response:
         destination_name, destination_city, destination_country = destination.split(",")  # nopep8
         final_list.append((destination_name.strip(), destination_city.strip(), destination_country.strip()))  # nopep8
@@ -68,7 +81,7 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
 
 
 def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_and_time: str, trip_type: str, location: str) -> str:
-    prompt = f"""
+    old_prompt = f"""
     Given the arrival date and time {arrival_date_and_time}, departure date and time {departure_date_and_time}, trip type {trip_type}, and location {location}, generate a daily plan for a {trip_type} vacation in the given location.\n
     Do not include any other information in your response.
     The format should be:
@@ -101,7 +114,7 @@ def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_an
     In addition, each <moment> is a chosen activity (out of the activities you provided) which represents the best and beautiful moments of the trip.
     """
 
-    prompt2 = f"""
+    updated_prompt = f"""
     I am going on a solo {trip_type} vacation to {location}. My arrival date and time: {arrival_date_and_time}, my departure date and time: {departure_date_and_time}.
     I need you to generate a daily plan for this {trip_type} vacation in the given time and location.
     Do not include any other information in your response.
@@ -140,7 +153,7 @@ def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_an
     Also notice that like any other human - I need to eat, and sleep. So make sure to include some relaxing activities and time to eat (breakfast, lunch and dinner) and sleep.
     """
 
-    response = send_prompt(prompt2)
+    response = send_prompt(updated_prompt)
     return response
 
 
@@ -182,7 +195,6 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
             "departure_id": "TLV",
             "arrival_id": destination_airport_code,
             "outbound_date": start_date,
-            # "return_date": end_date,
             "currency": "USD",
             "hl": "en",
             "api_key": SERPAPI_KEY,
@@ -192,14 +204,10 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
         # Perform the flight search and store the results
         results = flight_search.get_dict()
 
-        # save the results to a json file
-        # with open('from_TLV_flight_search_results.json', 'w') as file:
-        # json.dump(results, file, indent=4)
-
         # Check if there was an error with the flight search
         if 'error' in results.keys():
             print(
-                f"Error: {destination[0]} {destination[1]} {destination[2]} from TLV")
+                f"Error from serpapi: from TLV to {destination[0]} {destination[1]} {destination[2]}")
             continue
         elif 'best_flights' in results.keys():
             from_TLV_cheapest_flight = results['best_flights'][0]
@@ -213,25 +221,19 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
             "departure_id": destination_airport_code,
             "arrival_id": "TLV",
             "outbound_date": end_date,
-            # "return_date": end_date,
             "currency": "USD",
             "hl": "en",
             "api_key": SERPAPI_KEY,
             "type": "2",
-            # "departure_token": from_TLV_cheapest_flight['departure_token']
         }
         flight_search = GoogleSearch(to_TLV_flight_search_params)
         # Perform the flight search and store the results
         results = flight_search.get_dict()
 
-        # save the results to a json file
-        # with open('to_TLV_flight_search_results.json', 'w') as file:
-        # json.dump(results, file, indent=4)
-
         # Check if there was an error with the flight search
         if 'error' in results.keys():
             print(
-                f"Error: {destination[0]} {destination[1]} {destination[2]} to TLV")
+                f"Error from serpapi: from {destination[0]} {destination[1]} {destination[2]} to TLV")
             continue
 
         elif 'best_flights' in results.keys():
@@ -247,22 +249,6 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
             print(
                 f"Total price of flights to {destination_city}, {destination_country} and back is above budget")
             continue
-
-        # Define the filename for the JSON output
-        # json1_filename = f"From TLV to {destination[0]}_{destination_city}_{destination_country}_flight.json"  # nopep8
-
-        # Define the filename for the JSON output
-        # json2_filename = f"From {destination[0]}_{destination_city}_{destination_country} to TLV_flight.json"  # nopep8
-
-        # Write the results to a JSON file
-        # with open(json1_filename, 'w') as json_file:
-            # json.dump(from_TLV_cheapest_flight, json_file, indent=4)
-        # print(f"Saved flight data for {destination[0]}_{destination_city}, {destination_country} to {json1_filename}")  # nopep8
-
-        # Write the results to a JSON file
-        # with open(json2_filename, 'w') as json_file:
-        #     json.dump(to_TLV_cheapest_flight, json_file, indent=4)
-        # print(f"Saved flight data for {destination[0]}_{destination_city}, {destination_country} to {json2_filename}")  # nopep8
 
         flights['@'.join((destination[0], destination[1], destination[2]))] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], budget - total_flights_price]  # nopep8
 
@@ -290,8 +276,6 @@ def search_hotels(destinations: dict, start_date: str, end_date: str) -> dict:
         if 'error' in results.keys():
             hotels[key] = None
         else:
-            # with open(f"{key[0]}_{key[1]}_{key[2]}_hotels.json", 'w') as file:
-            #     json.dump(results, file, indent=4)
             hotels[key] = [results['properties'], destination[1]]  # nopep8
     return hotels
 
@@ -314,15 +298,15 @@ def get_most_expensive_hotels(hotels: dict) -> dict:
 
 
 def get_dalle_images(activity: str, country: str, gender: str) -> str:
-    prompt = f"""I am going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
+    prompt = f"""I am a {gender} who is going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
     I could use your image generating skills to help me understand and feel the amazing moment I am going to have.
     Please generate an image of the activity. Make sure it looks real - don't exaggerate...
-    Also - the image should not contain me, only the activity and maybe people that are needed for the activity (such as a show or an instructor, etc)."""
+    Also - the image should not focus on me, only focus on the activity and maybe people that are needed for the activity (such as a show performers or an instructor, etc)."""
 
     response = OPENAI_CLIENT.images.generate(
-        model="dall-e-3",
-        prompt=prompt,  # nopep8
-        size="1024x1024",
+        model="dall-e-2",
+        prompt=prompt,
+        size="512x512",
         quality="standard",
         n=1,
     )
@@ -337,26 +321,18 @@ def get_dalle_images(activity: str, country: str, gender: str) -> str:
 def main():
     start_month = 9
     end_month = 9
-    trip_type = "beach"
+    trip_type = "ski"
     destinations = get_top_5_destinations(start_month, end_month, trip_type)
     print(destinations)
     start_date = "2024-09-01"
     end_date = "2024-09-15"
-    budget = 3000
+    budget = 30000
     flights = search_flights(destinations, start_date, end_date, budget)
-    # with open('flights.json', 'w') as file:
-    #     json.dump(flights, file, indent=4)
     hotels = search_hotels(flights, start_date, end_date)
-    # with open('hotels.json', 'w') as file:
-    #     json.dump(hotels, file, indent=4)
     most_expensive_hotels = get_most_expensive_hotels(hotels)
-    # with open('most_expensive_hotel.json', 'w') as file:
-    #     json.dump(most_expensive_hotels, file, indent=4)
     for key, value in most_expensive_hotels.items():
         print(f"Destination: {key}")
-
-    chosen_dest = input(
-        "Enter the destination you would like to get a daily plan for: ")
+    chosen_dest = input("Enter the destination you would like to get a daily plan for: ")  # nopep8
     gender = input("Male/Female? ")
     arrival_date = flights[chosen_dest][0][0]['flights'][len(flights[chosen_dest][0][0]['flights']) - 1]['arrival_airport']['time']  # nopep8
     print(arrival_date)
