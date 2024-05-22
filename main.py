@@ -5,7 +5,7 @@ import unicodedata
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-SERPAPI_KEY = '90f89941d7f316c2064c43b484c090c80313b9e099b317ef46de5947ac4586b7'
+SERPAPI_KEY = '88e69e005f6fe09a1e1373079c36a0cb4897db8c8c8e8b8e222c6202c67dab03'
 OPENAI_CLIENT = OpenAI(api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt")  # nopep8
 
 
@@ -337,18 +337,18 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
     # search for flights
     flights: dict = search_flights(destinations, begda, endda, budget)
 
-    with open('flights.json', 'w') as file:
-        json.dump(flights, file)
+    # with open('flights.json', 'w') as file:
+    #     json.dump(flights, file)
     # search for hotels
     hotels: dict = search_hotels(flights, begda, endda)
 
-    with open('hotels.json', 'w') as file:
-        json.dump(hotels, file)
+    # with open('hotels.json', 'w') as file:
+    #     json.dump(hotels, file)
     # get the most expensive hotels
     most_expensive_hotels: dict = get_most_expensive_hotels(hotels)
 
-    with open('most_expensive_hotels.json', 'w') as file:
-        json.dump(most_expensive_hotels, file)
+    # with open('most_expensive_hotels.json', 'w') as file:
+    #     json.dump(most_expensive_hotels, file)
 
     final_list: dict = {key: {} for key in most_expensive_hotels.keys()}
 
@@ -361,23 +361,21 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
 
         # flights details
         final_list[key]['arrival_daytime'] = str(flights[key][0][0]['flights'][len(flights[key][0][0]['flights']) - 1]['arrival_airport']['time'])  # nopep8
-        final_list[key]['arrival_total_price'] = str(flights[key][0][0]['price'])  # nopep8
+        final_list[key]['arrival_total_price'] = float(flights[key][0][0]['price'])  # nopep8
         final_list[key]['arrival_connections_number'] = str(len(flights[key][0][0]['flights']) - 1)  # nopep8
         final_list[key]['arrival_connections_list'] = [str(get_normal_name_without_foreign_chars(flight['arrival_airport']['name'])) for flight in flights[key][0][0]['flights'][:-1]]  # nopep8
         final_list[key]['departure_daytime'] = str(flights[key][0][1]['flights'][0]['departure_airport']['time'])  # nopep8
-        final_list[key]['departure_total_price'] = str(flights[key][0][1]['price'])  # nopep8
+        final_list[key]['departure_total_price'] = float(flights[key][0][1]['price'])  # nopep8
         final_list[key]['departure_connections_number'] = str(len(flights[key][0][1]['flights']) - 1)  # nopep8
         final_list[key]['departure_connections_list'] = [str(get_normal_name_without_foreign_chars(flight['departure_airport']['name'])) for flight in flights[key][0][1]['flights'][1:]]  # nopep8
-        final_list[key]['flights_total_price'] = str(final_list[key]['arrival_total_price'] + final_list[key]['departure_total_price'])  # nopep8
+        final_list[key]['flights_total_price'] = float(final_list[key]['arrival_total_price'] + final_list[key]['departure_total_price'])  # nopep8
 
         # hotels details
         final_list[key]['hotel_name'] = str(get_normal_name_without_foreign_chars(most_expensive_hotels[key]['name']))  # nopep8
-        final_list[key]['hotel_type'] = str(most_expensive_hotels[key]['type'])
-        final_list[key]['hotel_link'] = str(most_expensive_hotels[key]['link'])
-        final_list[key]['hotel_total_price'] = str(most_expensive_hotels[key]['total_rate']['extracted_lowest'])  # nopep8
-        final_list[key]['hotel_images_links_list'] = str([hotel['original_image'] for hotel in most_expensive_hotels[key]['images']])  # nopep8
-        final_list[key]['hotel_overall_rating'] = str(most_expensive_hotels[key]['overall_rating'])  # nopep8
-        final_list[key]['hotel_location_rating'] = str(most_expensive_hotels[key]['location_rating'])  # nopep8
+        final_list[key]['hotel_total_price'] = float(most_expensive_hotels[key]['total_rate']['extracted_lowest'])  # nopep8
+        # final_list[key]['hotel_images_links_list'] = str([hotel['original_image'] for hotel in most_expensive_hotels[key]['images']])  # nopep8
+        # final_list[key]['hotel_overall_rating'] = str(most_expensive_hotels[key]['overall_rating'])  # nopep8
+        # final_list[key]['hotel_location_rating'] = str(most_expensive_hotels[key]['location_rating'])  # nopep8
 
     return {k: final_list[k] for i, k in enumerate(final_list) if i < 5}
 
@@ -442,4 +440,5 @@ def main():
 
 if __name__ == "__main__":
     with open('final.json', 'w') as file:
-        json.dump(get_top_5_options("2024-08-15", "2024-09-03", "city", 2500), file)  # nopep8
+        json.dump(get_top_5_options("2025-01-10", "2025-01-20", "ski", 3000), file)  # nopep8
+# http://127.0.0.1:8000/top-5-options?start_month=2025-01-10&end_month=2025-01-20&trip_type=ski&budget=3000

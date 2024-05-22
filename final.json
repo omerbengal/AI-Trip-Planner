@@ -1,0 +1,100 @@
+{
+    "Val d'Isere@Geneva@Switzerland": {
+        "destination": "Val d'Isere",
+        "city": "Geneva",
+        "country": "Switzerland",
+        "arrival_daytime": "2025-01-10 10:45",
+        "arrival_total_price": 158.0,
+        "arrival_connections_number": "1",
+        "arrival_connections_list": [
+            "Leonardo da VinciFiumicino Airport"
+        ],
+        "departure_daytime": "2025-01-20 20:15",
+        "departure_total_price": 152.0,
+        "departure_connections_number": "1",
+        "departure_connections_list": [
+            "Zurich Airport"
+        ],
+        "flights_total_price": 310.0,
+        "hotel_name": "Jugendstil-Hotel Paxmontana",
+        "hotel_total_price": 1775.0
+    },
+    "Zermatt@Zurich@Switzerland": {
+        "destination": "Zermatt",
+        "city": "Zurich",
+        "country": "Switzerland",
+        "arrival_daytime": "2025-01-10 08:15",
+        "arrival_total_price": 151.0,
+        "arrival_connections_number": "0",
+        "arrival_connections_list": [],
+        "departure_daytime": "2025-01-20 11:15",
+        "departure_total_price": 169.0,
+        "departure_connections_number": "1",
+        "departure_connections_list": [
+            "Athens International Airport \"Eleftherios Venizelos\""
+        ],
+        "flights_total_price": 320.0,
+        "hotel_name": "Hotel Alpen Resort & SPA",
+        "hotel_total_price": 2437.0
+    },
+    "St Anton@Innsbruck@Austria": {
+        "destination": "St Anton",
+        "city": "Innsbruck",
+        "country": "Austria",
+        "arrival_daytime": "2025-01-10 14:50",
+        "arrival_total_price": 195.0,
+        "arrival_connections_number": "1",
+        "arrival_connections_list": [
+            "Athens International Airport \"Eleftherios Venizelos\""
+        ],
+        "departure_daytime": "2025-01-20 14:15",
+        "departure_total_price": 157.0,
+        "departure_connections_number": "1",
+        "departure_connections_list": [
+            "Munich International Airport"
+        ],
+        "flights_total_price": 352.0,
+        "hotel_name": "Gafluna",
+        "hotel_total_price": 2166.0
+    },
+    "Courchevel@Lyon@France": {
+        "destination": "Courchevel",
+        "city": "Lyon",
+        "country": "France",
+        "arrival_daytime": "2025-01-10 17:45",
+        "arrival_total_price": 190.0,
+        "arrival_connections_number": "1",
+        "arrival_connections_list": [
+            "Josep Tarradellas Barcelona-El Prat Airport"
+        ],
+        "departure_daytime": "2025-01-20 17:00",
+        "departure_total_price": 141.0,
+        "departure_connections_number": "1",
+        "departure_connections_list": [
+            "Josep Tarradellas Barcelona-El Prat Airport"
+        ],
+        "flights_total_price": 331.0,
+        "hotel_name": "Crowne Plaza Paris - Republique, an IHG Hotel",
+        "hotel_total_price": 2669.0
+    },
+    "Verbier@Geneva@Switzerland": {
+        "destination": "Verbier",
+        "city": "Geneva",
+        "country": "Switzerland",
+        "arrival_daytime": "2025-01-10 10:45",
+        "arrival_total_price": 158.0,
+        "arrival_connections_number": "1",
+        "arrival_connections_list": [
+            "Leonardo da VinciFiumicino Airport"
+        ],
+        "departure_daytime": "2025-01-20 20:15",
+        "departure_total_price": 152.0,
+        "departure_connections_number": "1",
+        "departure_connections_list": [
+            "Zurich Airport"
+        ],
+        "flights_total_price": 310.0,
+        "hotel_name": "La Ruinette Immobilier - Location & Vente",
+        "hotel_total_price": 2230.0
+    }
+}
