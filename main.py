@@ -389,9 +389,9 @@ app.add_middleware(
 
 # FastAPI routes
 @app.get("/top-5-options")
-def get_top_5_options_route(start_month: str, end_month: str, trip_type: str, budget: int):
+def get_top_5_options_route(start_date: str, end_date: str, trip_type: str, budget: int):
     try:
-        return get_top_5_options(start_month, end_month, trip_type, budget)
+        return get_top_5_options(start_date, end_date, trip_type, budget)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
