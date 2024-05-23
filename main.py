@@ -2,9 +2,16 @@ import json
 from serpapi import GoogleSearch
 from openai import OpenAI
 import unicodedata
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import re
 
-SERPAPI_KEY = '32383635dd8a34f9ec6dc20c43f2962bbf9bfb347154d4a72a13e55d988e3ed8'
+SERPAPI_KEY = '88e69e005f6fe09a1e1373079c36a0cb4897db8c8c8e8b8e222c6202c67dab03'
 OPENAI_CLIENT = OpenAI(api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt")  # nopep8
+
+
+def get_normal_name_without_foreign_chars(str: str) -> str:
+    return unicodedata.normalize('NFKD', str).encode('ascii', 'ignore').decode('utf-8')  # nopep8
 
 
 def upload_file_to_open_ai(file_path: str) -> str:
@@ -27,7 +34,7 @@ def send_prompt(prompt) -> str:
         return response
 
 
-def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
+def get_top_destinations(start_month: int, end_month: int, trip_type: str):
 
     final_list = []
     months = {
@@ -69,6 +76,7 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     if file_id:
         prompt += f"""\n\nHere is the file id for airports code of cities around the world: {file_id}
         Use this file as a reference to find the correct name of a nearest city with an airport for each destination.
+        For example, do not provide a city and a country where the city does not have an airport, or this city and country does not exist together in the file.
         Also - use this file as a reference to find the correct name of the country for each destination.
         """
 
@@ -80,42 +88,10 @@ def get_top_5_destinations(start_month: int, end_month: int, trip_type: str):
     return final_list
 
 
-def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_and_time: str, trip_type: str, location: str) -> str:
-    old_prompt = f"""
-    Given the arrival date and time {arrival_date_and_time}, departure date and time {departure_date_and_time}, trip type {trip_type}, and location {location}, generate a daily plan for a {trip_type} vacation in the given location.\n
-    Do not include any other information in your response.
-    The format should be:
-    Day 1:
-    <activity>
-    <activity>
-    ...
-    Day 2:
-    <activity>
-    <activity>
-    ...
-    Day 3:
-    <activity>
-    <activity>
-    ...
-    Day N:
-    <activity>
-    <activity>
-    ...
-    4 Best Moments:
-    <moment>
-    <moment>
-    <moment>
-    <moment>
-    Where <activity> is an activity that can be done in the location or nearby, and N is the number of days in the trip.
-    Do not include more than 3 activities per day.
-    Make sure to include a variety of activities that cater to different interests and preferences.
-    The activities in each day should be with consideration to the time it takes to do them, and so there could be days with less than 3 acivities.
-    If the arrival date and time is in the evening, the first day should include activities that can be done in the evening, and the same applies to the departure date and time.
-    In addition, each <moment> is a chosen activity (out of the activities you provided) which represents the best and beautiful moments of the trip.
-    """
+def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_and_time: str, trip_type: str, destination: str, country: str) -> str:
 
     updated_prompt = f"""
-    I am going on a solo {trip_type} vacation to {location}. My arrival date and time: {arrival_date_and_time}, my departure date and time: {departure_date_and_time}.
+    I am going on a solo {trip_type} vacation to {destination}, {country}. My arrival date and time: {arrival_date_and_time}, my departure date and time: {departure_date_and_time}.
     I need you to generate a daily plan for this {trip_type} vacation in the given time and location.
     Do not include any other information in your response.
     The format should be:
@@ -147,6 +123,8 @@ def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_an
     N is the number of days in the trip.
     The 4 <moment> tags represents the 4 most thrilling, exciting, beautiful and fun activities (out of the activities you provided) which represents the best potential moments of the vacation.
 
+    Do not make the list with bullets or dashes.
+
     Some considerations:
     Take into consideration the time of the day when the arrival and departure are.
     Make sure to include a variety of activities that cater to different interests and preferences.
@@ -161,10 +139,8 @@ def find_airport_code(city: str, country: str) -> str:
     with open('airports-code.json', 'r') as file:
         airport_codes = json.load(file)
     destination_airport_code = None
-    fixed_city = unicodedata.normalize('NFKD', city).encode(
-        'ascii', 'ignore').decode('utf-8')
-    fixed_country = unicodedata.normalize(
-        'NFKD', country).encode('ascii', 'ignore').decode('utf-8')
+    fixed_city = get_normal_name_without_foreign_chars(city)
+    fixed_country = get_normal_name_without_foreign_chars(country)
     for airport in airport_codes:
         if (fixed_city.lower().strip() in airport['city_name'].lower().strip()
                 or airport['city_name'].lower().strip() in fixed_city.lower().strip()
@@ -250,7 +226,12 @@ def search_flights(destinations: list, start_date: str, end_date: str, budget: i
                 f"Total price of flights to {destination_city}, {destination_country} and back is above budget")
             continue
 
-        flights['@'.join((destination[0], destination[1], destination[2]))] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], budget - total_flights_price]  # nopep8
+        fixed_destination = get_normal_name_without_foreign_chars(
+            destination[0])
+        fixed_city = get_normal_name_without_foreign_chars(destination[1])
+        fixed_country = get_normal_name_without_foreign_chars(destination[2])
+
+        flights['@'.join((fixed_destination, fixed_city, fixed_country))] = [[from_TLV_cheapest_flight, to_TLV_cheapest_flight], budget - total_flights_price]  # nopep8
 
     return flights
 
@@ -297,16 +278,16 @@ def get_most_expensive_hotels(hotels: dict) -> dict:
     return max_hotel
 
 
-def get_dalle_images(activity: str, country: str, gender: str) -> str:
-    prompt = f"""I am a {gender} who is going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
+def get_dalle_images(activity: str, country: str) -> str:
+    prompt = f"""I am going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
     I could use your image generating skills to help me understand and feel the amazing moment I am going to have.
     Please generate an image of the activity. Make sure it looks real - don't exaggerate...
     Also - the image should not focus on me, only focus on the activity and maybe people that are needed for the activity (such as a show performers or an instructor, etc)."""
 
     response = OPENAI_CLIENT.images.generate(
-        model="dall-e-2",
+        model="dall-e-3",
         prompt=prompt,
-        size="512x512",
+        size="1024x1024",
         quality="standard",
         n=1,
     )
@@ -318,33 +299,148 @@ def get_dalle_images(activity: str, country: str, gender: str) -> str:
         return ''
 
 
+def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
+    # begda and endda are in the format of "YYYY-MM-DD"
+
+    # get the top destinations
+    destinations = get_top_destinations(int(begda.split("-")[1]), int(endda.split("-")[1]), trip_type)  # nopep8
+    print('destinations: ' + str(destinations))
+    # search for flights
+    flights: dict = search_flights(destinations, begda, endda, budget)
+
+    # with open('flights.json', 'w') as file:
+    #     json.dump(flights, file)
+    # search for hotels
+    hotels: dict = search_hotels(flights, begda, endda)
+
+    # with open('hotels.json', 'w') as file:
+    #     json.dump(hotels, file)
+    # get the most expensive hotels
+    most_expensive_hotels: dict = get_most_expensive_hotels(hotels)
+
+    # with open('most_expensive_hotels.json', 'w') as file:
+    #     json.dump(most_expensive_hotels, file)
+
+    final_list: dict = {key: {} for key in most_expensive_hotels.keys()}
+
+    for key in final_list.keys():
+
+        # destination details
+        final_list[key]['destination'] = str(key.split('@')[0])
+        final_list[key]['city'] = str(key.split('@')[1])
+        final_list[key]['country'] = str(key.split('@')[2])
+
+        # flights details
+        final_list[key]['arrival_daytime'] = str(flights[key][0][0]['flights'][len(flights[key][0][0]['flights']) - 1]['arrival_airport']['time'])  # nopep8
+        final_list[key]['arrival_total_price'] = float(flights[key][0][0]['price'])  # nopep8
+        final_list[key]['arrival_connections_number'] = str(len(flights[key][0][0]['flights']) - 1)  # nopep8
+        final_list[key]['arrival_connections_list'] = [str(get_normal_name_without_foreign_chars(flight['arrival_airport']['name'])) for flight in flights[key][0][0]['flights'][:-1]]  # nopep8
+        final_list[key]['departure_daytime'] = str(flights[key][0][1]['flights'][0]['departure_airport']['time'])  # nopep8
+        final_list[key]['departure_total_price'] = float(flights[key][0][1]['price'])  # nopep8
+        final_list[key]['departure_connections_number'] = str(len(flights[key][0][1]['flights']) - 1)  # nopep8
+        final_list[key]['departure_connections_list'] = [str(get_normal_name_without_foreign_chars(flight['departure_airport']['name'])) for flight in flights[key][0][1]['flights'][1:]]  # nopep8
+        final_list[key]['flights_total_price'] = float(final_list[key]['arrival_total_price'] + final_list[key]['departure_total_price'])  # nopep8
+
+        # hotels details
+        final_list[key]['hotel_name'] = str(get_normal_name_without_foreign_chars(most_expensive_hotels[key]['name']))  # nopep8
+        final_list[key]['hotel_total_price'] = float(most_expensive_hotels[key]['total_rate']['extracted_lowest'])  # nopep8
+        # final_list[key]['hotel_images_links_list'] = str([hotel['original_image'] for hotel in most_expensive_hotels[key]['images']])  # nopep8
+        # final_list[key]['hotel_overall_rating'] = str(most_expensive_hotels[key]['overall_rating'])  # nopep8
+        # final_list[key]['hotel_location_rating'] = str(most_expensive_hotels[key]['location_rating'])  # nopep8
+
+    return {k: final_list[k] for i, k in enumerate(final_list) if i < 5}
+
+
+def get_daily_plan_and_images(arrival_date: str, departure_date: str, trip_type: str, destination: str, country: str):
+    # get the daily plan
+    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, destination, country)  # nopep8
+    print(daily_plan)
+    activities = daily_plan.splitlines()[-4:]
+    images = []
+    for activity in activities:
+        image_url = get_dalle_images(activity, country)
+        images.append(image_url)
+
+    # go over the daily_plan and create a dictionary with the days and activities for each day, without the 4 best moments
+    daily_plan_dict = {}
+    for line in daily_plan.splitlines()[:-5]:
+        if re.match(r"^Day \d+:", line):
+            # take the day number
+            day_number = int(line.split(" ")[1].split(":")[0])
+            daily_plan_dict[day_number] = []
+        elif line.strip() != "":
+            daily_plan_dict[day_number].append(line)
+
+    return {"daily_plan": daily_plan_dict, "images": images}
+
+
+# FastAPI setup
+app = FastAPI()
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    # Allows all methods, including GET, POST, PUT, DELETE, etc.
+    allow_methods=["*"],
+    allow_headers=["*"],  # Allows all headers
+)
+
+
+# FastAPI routes
+@app.get("/top-5-options")
+def get_top_5_options_route(start_date: str, end_date: str, trip_type: str, budget: int):
+    try:
+        return get_top_5_options(start_date, end_date, trip_type, budget)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/daily-plan-and-images")
+def get_daily_plan_and_images_route(arrival_date: str, departure_date: str, trip_type: str, destination: str, country: str):
+    try:
+        return get_daily_plan_and_images(arrival_date, departure_date, trip_type, destination, country)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Main function
 def main():
-    start_month = 9
-    end_month = 9
+    start_month = 1
+    end_month = 1
     trip_type = "ski"
-    destinations = get_top_5_destinations(start_month, end_month, trip_type)
+    destinations = get_top_destinations(start_month, end_month, trip_type)
     print(destinations)
-    start_date = "2024-09-01"
-    end_date = "2024-09-15"
+    start_date = "2025-01-01"
+    end_date = "2025-01-20"
     budget = 30000
     flights = search_flights(destinations, start_date, end_date, budget)
+    # to json
+    with open('flights.json', 'w') as file:
+        json.dump(flights, file)
     hotels = search_hotels(flights, start_date, end_date)
+    # to json
+    with open('hotels.json', 'w') as file:
+        json.dump(hotels, file)
     most_expensive_hotels = get_most_expensive_hotels(hotels)
+    # to json
+    with open('most_expensive_hotels.json', 'w') as file:
+        json.dump(most_expensive_hotels, file)
     for key, value in most_expensive_hotels.items():
         print(f"Destination: {key}")
     chosen_dest = input("Enter the destination you would like to get a daily plan for: ")  # nopep8
-    gender = input("Male/Female? ")
     arrival_date = flights[chosen_dest][0][0]['flights'][len(flights[chosen_dest][0][0]['flights']) - 1]['arrival_airport']['time']  # nopep8
-    print(arrival_date)
     departure_date = flights[chosen_dest][0][1]['flights'][0]['departure_airport']['time']  # nopep8
-    print(departure_date)
-    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, f"{chosen_dest.split('@')[0]} , {chosen_dest.split('@')[2]}")  # nopep8
+    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, f"{chosen_dest.split('@')[0]}", f"{chosen_dest.split('@')[2]}")  # nopep8
     print(daily_plan)
     activities = daily_plan.splitlines()[-4:]
     for activity in activities:
-        image_url = get_dalle_images(activity, chosen_dest.split('@')[2], gender)  # nopep8
+        image_url = get_dalle_images(activity, chosen_dest.split('@')[2])  # nopep8
         print(image_url)
 
 
 if __name__ == "__main__":
-    main()
+    with open('final.json', 'w') as file:
+        json.dump(get_daily_plan_and_images("2025-01-10", "2025-01-20", "ski", "Zermatt", "Switzerland"), file)  # nopep8
+# http://127.0.0.1:8000/top-5-options?start_month=2025-01-10&end_month=2025-01-20&trip_type=ski&budget=3000
+# http://127.0.0.1:8000/daily-plan-and-images?arrival_date=2025-01-10&departure_date=2025-01-20&trip_type=ski&destination=Zermatt&country=Switzerland

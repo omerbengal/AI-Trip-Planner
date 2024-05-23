@@ -1,0 +1,65 @@
+{
+    "daily_plan": {
+        "1": [
+            "Arrival and check-in to hotel",
+            "Evening stroll around Zermatt village and dinner at local Swiss restaurant"
+        ],
+        "2": [
+            "Morning skiing at Sunnegga Paradise",
+            "Lunch at a mountain hut restaurant",
+            "Afternoon skiing in Gornergrat area",
+            "Relax and dinner at the hotel"
+        ],
+        "3": [
+            "Full day skiing in the Matterhorn Glacier Paradise",
+            "Lunch on the slopes",
+            "Evening relaxation at a spa"
+        ],
+        "4": [
+            "Morning skiing in Rothorn area",
+            "Lunch at Chez Vrony",
+            "Afternoon visit to the Matterhorn Museum",
+            "Dinner at a fine dining restaurant"
+        ],
+        "5": [
+            "Full day skiing in the Cervinia area (Italian side)",
+            "Lunch at an Italian mountain restaurant",
+            "Return to Zermatt and relax",
+            "Evening visit to an apr\u00e8s-ski bar"
+        ],
+        "6": [
+            "Morning snowshoeing tour",
+            "Lunch in Zermatt",
+            "Afternoon paragliding experience",
+            "Dinner at a local bistro"
+        ],
+        "7": [
+            "Morning off-piste skiing with a guide",
+            "Lunch on the slopes",
+            "Afternoon relaxation and shopping in Zermatt village",
+            "Dinner at a fondue restaurant"
+        ],
+        "8": [
+            "Morning visit to Gornergrat Bahn for panoramic views",
+            "Lunch at the Gornergrat restaurant",
+            "Afternoon cross-country skiing or sledding",
+            "Relax and dinner at the hotel"
+        ],
+        "9": [
+            "Full day skiing in the Zermatt resort",
+            "Lunch on the slopes",
+            "Afternoon relaxation at the hotel",
+            "Farewell dinner at a gourmet restaurant"
+        ],
+        "10": [
+            "Breakfast and check-out from hotel",
+            "Travel to the airport for departure"
+        ]
+    },
+    "images": [
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-LrnR5ewmGxJyY7WZAevnYbBN.png?st=2024-05-23T18%3A26%3A10Z&se=2024-05-23T20%3A26%3A10Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A30%3A49Z&ske=2024-05-24T10%3A30%3A49Z&sks=b&skv=2021-08-06&sig=ZUv3dShH5ASJVJM8dyyhNY8v7CknR7UyyCXHI32mLQE%3D",
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-b2YCJipE2NxMgSuobWVEFUjG.png?st=2024-05-23T18%3A26%3A26Z&se=2024-05-23T20%3A26%3A26Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A19%3A33Z&ske=2024-05-24T10%3A19%3A33Z&sks=b&skv=2021-08-06&sig=xgDj7JmDgm2jxzcKOXuweaCniW8uQj2VJd4GHD5ZWoQ%3D",
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-2pJXfYeWZb1L3EFQ3J42H1sE.png?st=2024-05-23T18%3A26%3A44Z&se=2024-05-23T20%3A26%3A44Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A18%3A24Z&ske=2024-05-24T10%3A18%3A24Z&sks=b&skv=2021-08-06&sig=4gavpMfj35tHx/Qs0UpsEhhUB8lCcJXp4sOnOm6l8m4%3D",
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-PbCVU0hjpqePH2BzEl8q88nc.png?st=2024-05-23T18%3A26%3A58Z&se=2024-05-23T20%3A26%3A58Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A37%3A30Z&ske=2024-05-24T10%3A37%3A30Z&sks=b&skv=2021-08-06&sig=OC9MnrJlKuaCyexsyRK/KGFzYs/oj97WUug3re58CDk%3D"
+    ]
+}
