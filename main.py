@@ -348,6 +348,7 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
         # final_list[key]['hotel_overall_rating'] = str(most_expensive_hotels[key]['overall_rating'])  # nopep8
         # final_list[key]['hotel_location_rating'] = str(most_expensive_hotels[key]['location_rating'])  # nopep8
 
+    print(final_list)
     return {k: final_list[k] for i, k in enumerate(final_list) if i < 5}
 
 

@@ -34,13 +34,14 @@ export default function Home() {
     try {
 
       // Call the API, for example: http://127.0.0.1:8000/top-5-options?start_date=2025-01-10&end_date=2025-01-20&trip_type=ski&budget=3000
-      const response = await axios.get(`http://127.0.0.1:8000/top-5-options?start_date=${startDate}&end_date=${endDate}&trip_type=${tripType}&budget=${budget}`);
-      setDestinations(response);
+      const response = await axios.get(`http://127.0.0.1:8000/top-5-options?start_date=${startDate.format('YYYY-MM-DD')}&end_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&budget=${budget}`);
+      setDestinations(response.data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
+
   };
 
   const handleClick = (key) => {
@@ -95,6 +96,7 @@ export default function Home() {
               endDatePlaceholderText="yyyy-mm-dd"
             />
           </label>
+
           {showButton && (
             <div className="button-container">
               <button className="submit-button" type="submit">Get Destinations</button>
