@@ -4,6 +4,7 @@ from openai import OpenAI
 import unicodedata
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import re
 
 SERPAPI_KEY = '88e69e005f6fe09a1e1373079c36a0cb4897db8c8c8e8b8e222c6202c67dab03'
 OPENAI_CLIENT = OpenAI(api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt")  # nopep8
@@ -88,38 +89,6 @@ def get_top_destinations(start_month: int, end_month: int, trip_type: str):
 
 
 def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_and_time: str, trip_type: str, destination: str, country: str) -> str:
-    old_prompt = f"""
-    Given the arrival date and time {arrival_date_and_time}, departure date and time {departure_date_and_time}, trip type {trip_type}, and location {destination}, {country}, generate a daily plan for a {trip_type} vacation in the given location.\n
-    Do not include any other information in your response.
-    The format should be:
-    Day 1:
-    <activity>
-    <activity>
-    ...
-    Day 2:
-    <activity>
-    <activity>
-    ...
-    Day 3:
-    <activity>
-    <activity>
-    ...
-    Day N:
-    <activity>
-    <activity>
-    ...
-    4 Best Moments:
-    <moment>
-    <moment>
-    <moment>
-    <moment>
-    Where <activity> is an activity that can be done in the location or nearby, and N is the number of days in the trip.
-    Do not include more than 3 activities per day.
-    Make sure to include a variety of activities that cater to different interests and preferences.
-    The activities in each day should be with consideration to the time it takes to do them, and so there could be days with less than 3 acivities.
-    If the arrival date and time is in the evening, the first day should include activities that can be done in the evening, and the same applies to the departure date and time.
-    In addition, each <moment> is a chosen activity (out of the activities you provided) which represents the best and beautiful moments of the trip.
-    """
 
     updated_prompt = f"""
     I am going on a solo {trip_type} vacation to {destination}, {country}. My arrival date and time: {arrival_date_and_time}, my departure date and time: {departure_date_and_time}.
@@ -153,6 +122,8 @@ def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_an
     I put 2 activity tags in each day, but you can put less or more depending on the time it takes to do them.
     N is the number of days in the trip.
     The 4 <moment> tags represents the 4 most thrilling, exciting, beautiful and fun activities (out of the activities you provided) which represents the best potential moments of the vacation.
+
+    Do not make the list with bullets or dashes.
 
     Some considerations:
     Take into consideration the time of the day when the arrival and departure are.
@@ -383,6 +354,7 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
 def get_daily_plan_and_images(arrival_date: str, departure_date: str, trip_type: str, destination: str, country: str):
     # get the daily plan
     daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, destination, country)  # nopep8
+    print(daily_plan)
     activities = daily_plan.splitlines()[-4:]
     images = []
     for activity in activities:
@@ -391,8 +363,8 @@ def get_daily_plan_and_images(arrival_date: str, departure_date: str, trip_type:
 
     # go over the daily_plan and create a dictionary with the days and activities for each day, without the 4 best moments
     daily_plan_dict = {}
-    for line in daily_plan.splitlines():
-        if line.startswith("Day"):
+    for line in daily_plan.splitlines()[:-5]:
+        if re.match(r"^Day \d+:", line):
             # take the day number
             day_number = int(line.split(" ")[1].split(":")[0])
             daily_plan_dict[day_number] = []
@@ -469,5 +441,6 @@ def main():
 
 if __name__ == "__main__":
     with open('final.json', 'w') as file:
-        json.dump(get_top_5_options("2025-01-10", "2025-01-20", "ski", 3000), file)  # nopep8
+        json.dump(get_daily_plan_and_images("2025-01-10", "2025-01-20", "ski", "Zermatt", "Switzerland"), file)  # nopep8
 # http://127.0.0.1:8000/top-5-options?start_month=2025-01-10&end_month=2025-01-20&trip_type=ski&budget=3000
+# http://127.0.0.1:8000/daily-plan-and-images?arrival_date=2025-01-10&departure_date=2025-01-20&trip_type=ski&destination=Zermatt&country=Switzerland

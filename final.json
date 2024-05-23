@@ -1,100 +1,65 @@
 {
-    "Val d'Isere@Geneva@Switzerland": {
-        "destination": "Val d'Isere",
-        "city": "Geneva",
-        "country": "Switzerland",
-        "arrival_daytime": "2025-01-10 10:45",
-        "arrival_total_price": 158.0,
-        "arrival_connections_number": "1",
-        "arrival_connections_list": [
-            "Leonardo da VinciFiumicino Airport"
+    "daily_plan": {
+        "1": [
+            "Arrival and check-in to hotel",
+            "Evening stroll around Zermatt village and dinner at local Swiss restaurant"
         ],
-        "departure_daytime": "2025-01-20 20:15",
-        "departure_total_price": 152.0,
-        "departure_connections_number": "1",
-        "departure_connections_list": [
-            "Zurich Airport"
+        "2": [
+            "Morning skiing at Sunnegga Paradise",
+            "Lunch at a mountain hut restaurant",
+            "Afternoon skiing in Gornergrat area",
+            "Relax and dinner at the hotel"
         ],
-        "flights_total_price": 310.0,
-        "hotel_name": "Jugendstil-Hotel Paxmontana",
-        "hotel_total_price": 1775.0
+        "3": [
+            "Full day skiing in the Matterhorn Glacier Paradise",
+            "Lunch on the slopes",
+            "Evening relaxation at a spa"
+        ],
+        "4": [
+            "Morning skiing in Rothorn area",
+            "Lunch at Chez Vrony",
+            "Afternoon visit to the Matterhorn Museum",
+            "Dinner at a fine dining restaurant"
+        ],
+        "5": [
+            "Full day skiing in the Cervinia area (Italian side)",
+            "Lunch at an Italian mountain restaurant",
+            "Return to Zermatt and relax",
+            "Evening visit to an apr\u00e8s-ski bar"
+        ],
+        "6": [
+            "Morning snowshoeing tour",
+            "Lunch in Zermatt",
+            "Afternoon paragliding experience",
+            "Dinner at a local bistro"
+        ],
+        "7": [
+            "Morning off-piste skiing with a guide",
+            "Lunch on the slopes",
+            "Afternoon relaxation and shopping in Zermatt village",
+            "Dinner at a fondue restaurant"
+        ],
+        "8": [
+            "Morning visit to Gornergrat Bahn for panoramic views",
+            "Lunch at the Gornergrat restaurant",
+            "Afternoon cross-country skiing or sledding",
+            "Relax and dinner at the hotel"
+        ],
+        "9": [
+            "Full day skiing in the Zermatt resort",
+            "Lunch on the slopes",
+            "Afternoon relaxation at the hotel",
+            "Farewell dinner at a gourmet restaurant"
+        ],
+        "10": [
+            "Breakfast and check-out from hotel",
+            "Travel to the airport for departure"
+        ]
     },
-    "Zermatt@Zurich@Switzerland": {
-        "destination": "Zermatt",
-        "city": "Zurich",
-        "country": "Switzerland",
-        "arrival_daytime": "2025-01-10 08:15",
-        "arrival_total_price": 151.0,
-        "arrival_connections_number": "0",
-        "arrival_connections_list": [],
-        "departure_daytime": "2025-01-20 11:15",
-        "departure_total_price": 169.0,
-        "departure_connections_number": "1",
-        "departure_connections_list": [
-            "Athens International Airport \"Eleftherios Venizelos\""
-        ],
-        "flights_total_price": 320.0,
-        "hotel_name": "Hotel Alpen Resort & SPA",
-        "hotel_total_price": 2437.0
-    },
-    "St Anton@Innsbruck@Austria": {
-        "destination": "St Anton",
-        "city": "Innsbruck",
-        "country": "Austria",
-        "arrival_daytime": "2025-01-10 14:50",
-        "arrival_total_price": 195.0,
-        "arrival_connections_number": "1",
-        "arrival_connections_list": [
-            "Athens International Airport \"Eleftherios Venizelos\""
-        ],
-        "departure_daytime": "2025-01-20 14:15",
-        "departure_total_price": 157.0,
-        "departure_connections_number": "1",
-        "departure_connections_list": [
-            "Munich International Airport"
-        ],
-        "flights_total_price": 352.0,
-        "hotel_name": "Gafluna",
-        "hotel_total_price": 2166.0
-    },
-    "Courchevel@Lyon@France": {
-        "destination": "Courchevel",
-        "city": "Lyon",
-        "country": "France",
-        "arrival_daytime": "2025-01-10 17:45",
-        "arrival_total_price": 190.0,
-        "arrival_connections_number": "1",
-        "arrival_connections_list": [
-            "Josep Tarradellas Barcelona-El Prat Airport"
-        ],
-        "departure_daytime": "2025-01-20 17:00",
-        "departure_total_price": 141.0,
-        "departure_connections_number": "1",
-        "departure_connections_list": [
-            "Josep Tarradellas Barcelona-El Prat Airport"
-        ],
-        "flights_total_price": 331.0,
-        "hotel_name": "Crowne Plaza Paris - Republique, an IHG Hotel",
-        "hotel_total_price": 2669.0
-    },
-    "Verbier@Geneva@Switzerland": {
-        "destination": "Verbier",
-        "city": "Geneva",
-        "country": "Switzerland",
-        "arrival_daytime": "2025-01-10 10:45",
-        "arrival_total_price": 158.0,
-        "arrival_connections_number": "1",
-        "arrival_connections_list": [
-            "Leonardo da VinciFiumicino Airport"
-        ],
-        "departure_daytime": "2025-01-20 20:15",
-        "departure_total_price": 152.0,
-        "departure_connections_number": "1",
-        "departure_connections_list": [
-            "Zurich Airport"
-        ],
-        "flights_total_price": 310.0,
-        "hotel_name": "La Ruinette Immobilier - Location & Vente",
-        "hotel_total_price": 2230.0
-    }
+    "images": [
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-LrnR5ewmGxJyY7WZAevnYbBN.png?st=2024-05-23T18%3A26%3A10Z&se=2024-05-23T20%3A26%3A10Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A30%3A49Z&ske=2024-05-24T10%3A30%3A49Z&sks=b&skv=2021-08-06&sig=ZUv3dShH5ASJVJM8dyyhNY8v7CknR7UyyCXHI32mLQE%3D",
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-b2YCJipE2NxMgSuobWVEFUjG.png?st=2024-05-23T18%3A26%3A26Z&se=2024-05-23T20%3A26%3A26Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A19%3A33Z&ske=2024-05-24T10%3A19%3A33Z&sks=b&skv=2021-08-06&sig=xgDj7JmDgm2jxzcKOXuweaCniW8uQj2VJd4GHD5ZWoQ%3D",
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-2pJXfYeWZb1L3EFQ3J42H1sE.png?st=2024-05-23T18%3A26%3A44Z&se=2024-05-23T20%3A26%3A44Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A18%3A24Z&ske=2024-05-24T10%3A18%3A24Z&sks=b&skv=2021-08-06&sig=4gavpMfj35tHx/Qs0UpsEhhUB8lCcJXp4sOnOm6l8m4%3D",
+        "https://oaidalleapiprodscus.blob.core.windows.net/private/org-2CwskBzgGP5OnJE5rJP2GrIS/user-pQHmZ7abVQi7uSAGDRiIqaDc/img-PbCVU0hjpqePH2BzEl8q88nc.png?st=2024-05-23T18%3A26%3A58Z&se=2024-05-23T20%3A26%3A58Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-05-23T10%3A37%3A30Z&ske=2024-05-24T10%3A37%3A30Z&sks=b&skv=2021-08-06&sig=OC9MnrJlKuaCyexsyRK/KGFzYs/oj97WUug3re58CDk%3D"
+    ]
 }
