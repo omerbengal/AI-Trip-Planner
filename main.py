@@ -87,9 +87,9 @@ def get_top_destinations(start_month: int, end_month: int, trip_type: str):
     return final_list
 
 
-def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_and_time: str, trip_type: str, location: str) -> str:
+def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_and_time: str, trip_type: str, destination: str, country: str) -> str:
     old_prompt = f"""
-    Given the arrival date and time {arrival_date_and_time}, departure date and time {departure_date_and_time}, trip type {trip_type}, and location {location}, generate a daily plan for a {trip_type} vacation in the given location.\n
+    Given the arrival date and time {arrival_date_and_time}, departure date and time {departure_date_and_time}, trip type {trip_type}, and location {destination}, {country}, generate a daily plan for a {trip_type} vacation in the given location.\n
     Do not include any other information in your response.
     The format should be:
     Day 1:
@@ -122,7 +122,7 @@ def get_daily_plan_for_destination(arrival_date_and_time: str, departure_date_an
     """
 
     updated_prompt = f"""
-    I am going on a solo {trip_type} vacation to {location}. My arrival date and time: {arrival_date_and_time}, my departure date and time: {departure_date_and_time}.
+    I am going on a solo {trip_type} vacation to {destination}, {country}. My arrival date and time: {arrival_date_and_time}, my departure date and time: {departure_date_and_time}.
     I need you to generate a daily plan for this {trip_type} vacation in the given time and location.
     Do not include any other information in your response.
     The format should be:
@@ -307,8 +307,8 @@ def get_most_expensive_hotels(hotels: dict) -> dict:
     return max_hotel
 
 
-def get_dalle_images(activity: str, country: str, gender: str) -> str:
-    prompt = f"""I am a {gender} who is going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
+def get_dalle_images(activity: str, country: str) -> str:
+    prompt = f"""I am going to a solo vacation to {country}, and I am going to do the following activity: {activity}.
     I could use your image generating skills to help me understand and feel the amazing moment I am going to have.
     Please generate an image of the activity. Make sure it looks real - don't exaggerate...
     Also - the image should not focus on me, only focus on the activity and maybe people that are needed for the activity (such as a show performers or an instructor, etc)."""
@@ -380,6 +380,28 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
     return {k: final_list[k] for i, k in enumerate(final_list) if i < 5}
 
 
+def get_daily_plan_and_images(arrival_date: str, departure_date: str, trip_type: str, destination: str, country: str):
+    # get the daily plan
+    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, destination, country)  # nopep8
+    activities = daily_plan.splitlines()[-4:]
+    images = []
+    for activity in activities:
+        image_url = get_dalle_images(activity, country)
+        images.append(image_url)
+
+    # go over the daily_plan and create a dictionary with the days and activities for each day, without the 4 best moments
+    daily_plan_dict = {}
+    for line in daily_plan.splitlines():
+        if line.startswith("Day"):
+            # take the day number
+            day_number = int(line.split(" ")[1].split(":")[0])
+            daily_plan_dict[day_number] = []
+        elif line.strip() != "":
+            daily_plan_dict[day_number].append(line)
+
+    return {"daily_plan": daily_plan_dict, "images": images}
+
+
 # FastAPI setup
 app = FastAPI()
 # CORS middleware
@@ -398,6 +420,14 @@ app.add_middleware(
 def get_top_5_options_route(start_month: str, end_month: str, trip_type: str, budget: int):
     try:
         return get_top_5_options(start_month, end_month, trip_type, budget)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/daily-plan-and-images")
+def get_daily_plan_and_images_route(arrival_date: str, departure_date: str, trip_type: str, destination: str, country: str):
+    try:
+        return get_daily_plan_and_images(arrival_date, departure_date, trip_type, destination, country)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -427,14 +457,13 @@ def main():
     for key, value in most_expensive_hotels.items():
         print(f"Destination: {key}")
     chosen_dest = input("Enter the destination you would like to get a daily plan for: ")  # nopep8
-    gender = input("Male/Female? ")
     arrival_date = flights[chosen_dest][0][0]['flights'][len(flights[chosen_dest][0][0]['flights']) - 1]['arrival_airport']['time']  # nopep8
     departure_date = flights[chosen_dest][0][1]['flights'][0]['departure_airport']['time']  # nopep8
-    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, f"{chosen_dest.split('@')[0]} , {chosen_dest.split('@')[2]}")  # nopep8
+    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, f"{chosen_dest.split('@')[0]}", f"{chosen_dest.split('@')[2]}")  # nopep8
     print(daily_plan)
     activities = daily_plan.splitlines()[-4:]
     for activity in activities:
-        image_url = get_dalle_images(activity, chosen_dest.split('@')[2], gender)  # nopep8
+        image_url = get_dalle_images(activity, chosen_dest.split('@')[2])  # nopep8
         print(image_url)
 
 
