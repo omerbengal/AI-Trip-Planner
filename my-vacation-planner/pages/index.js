@@ -31,7 +31,7 @@ export default function Home() {
     }
 
     setShowButton(false); // Hide the button
-    setShowDestinations(true); // Show the buttons again
+    setShowDestinations(true);
 
     setLoading(true);
     try {
@@ -149,13 +149,14 @@ export default function Home() {
   };
 
   // arrival_date: str, departure_date: str, trip_type: str, destination: str, country: str
-  const getDailyPlanAndImages = async () => {
+  const getDailyPlanAndImages = async (key) => {
 
     // at this point, the state "destinations" should have the selected destination as the only key in the object
 
     try {
       // format: http://127.0.0.1:8000/daily-plan-and-images?arrival_date=2025-01-10&departure_date=2025-01-20&trip_type=ski&destination=Zermatt&country=Switzerland
-      const response = await axios.get(`http://127.0.0.1:8000/daily-plan-and-images?arrival_date=${startDate.format('YYYY-MM-DD')}&departure_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&destination=${destinations[0].destination}&country=${destinations[0].country}`);
+      setLoading(false);
+      const response = await axios.get(`http://127.0.0.1:8000/daily-plan-and-images?arrival_date=${startDate.format('YYYY-MM-DD')}&departure_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&destination=${destinations[key].destination}&country=${destinations[key].country}`);
       setDailyPlanAndImagesLinks(response.data);
       // const response = {
       //   "daily_plan": {
@@ -245,7 +246,7 @@ export default function Home() {
   const handleClick = (key) => {
     console.log(key);
     setDestinations({ [key]: destinations[key] });
-    getDailyPlanAndImages();
+    getDailyPlanAndImages(key);
   };
 
   // Update the event handlers to show the button again when any input changes

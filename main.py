@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import re
 
-SERPAPI_KEY = '88e69e005f6fe09a1e1373079c36a0cb4897db8c8c8e8b8e222c6202c67dab03'
+SERPAPI_KEY = 'b996ecb32266f1427fa824af186564dd1ac3a019d3a63668bbb50beade398f54'
 OPENAI_CLIENT = OpenAI(api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt")  # nopep8
 
 
