@@ -1,12 +1,13 @@
 /* styles.css */
 
+* {
+    font-family: 'Rubik', sans-serif;
+}
+
 body {
     background: linear-gradient(to right, #00c6ff, #0072ff);
     /* Gradient from light blue to darker blue */
     color: #000;
-    /* Ensure text is still readable */
-    font-family: 'arial';
-    /* Set a cool font*/
 }
 
 /* Add styles for the header */

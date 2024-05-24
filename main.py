@@ -318,9 +318,6 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
     # get the most expensive hotels
     most_expensive_hotels: dict = get_most_expensive_hotels(hotels)
 
-    # with open('most_expensive_hotels.json', 'w') as file:
-    #     json.dump(most_expensive_hotels, file)
-
     final_list: dict = {key: {} for key in most_expensive_hotels.keys()}
 
     for key in final_list.keys():
@@ -344,9 +341,6 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
         # hotels details
         final_list[key]['hotel_name'] = str(get_normal_name_without_foreign_chars(most_expensive_hotels[key]['name']))  # nopep8
         final_list[key]['hotel_total_price'] = float(most_expensive_hotels[key]['total_rate']['extracted_lowest'])  # nopep8
-        # final_list[key]['hotel_images_links_list'] = str([hotel['original_image'] for hotel in most_expensive_hotels[key]['images']])  # nopep8
-        # final_list[key]['hotel_overall_rating'] = str(most_expensive_hotels[key]['overall_rating'])  # nopep8
-        # final_list[key]['hotel_location_rating'] = str(most_expensive_hotels[key]['location_rating'])  # nopep8
 
     print(final_list)
     return {k: final_list[k] for i, k in enumerate(final_list) if i < 5}
@@ -403,45 +397,3 @@ def get_daily_plan_and_images_route(arrival_date: str, departure_date: str, trip
         return get_daily_plan_and_images(arrival_date, departure_date, trip_type, destination, country)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# Main function
-def main():
-    start_month = 1
-    end_month = 1
-    trip_type = "ski"
-    destinations = get_top_destinations(start_month, end_month, trip_type)
-    print(destinations)
-    start_date = "2025-01-01"
-    end_date = "2025-01-20"
-    budget = 30000
-    flights = search_flights(destinations, start_date, end_date, budget)
-    # to json
-    with open('flights.json', 'w') as file:
-        json.dump(flights, file)
-    hotels = search_hotels(flights, start_date, end_date)
-    # to json
-    with open('hotels.json', 'w') as file:
-        json.dump(hotels, file)
-    most_expensive_hotels = get_most_expensive_hotels(hotels)
-    # to json
-    with open('most_expensive_hotels.json', 'w') as file:
-        json.dump(most_expensive_hotels, file)
-    for key, value in most_expensive_hotels.items():
-        print(f"Destination: {key}")
-    chosen_dest = input("Enter the destination you would like to get a daily plan for: ")  # nopep8
-    arrival_date = flights[chosen_dest][0][0]['flights'][len(flights[chosen_dest][0][0]['flights']) - 1]['arrival_airport']['time']  # nopep8
-    departure_date = flights[chosen_dest][0][1]['flights'][0]['departure_airport']['time']  # nopep8
-    daily_plan = get_daily_plan_for_destination(arrival_date, departure_date, trip_type, f"{chosen_dest.split('@')[0]}", f"{chosen_dest.split('@')[2]}")  # nopep8
-    print(daily_plan)
-    activities = daily_plan.splitlines()[-4:]
-    for activity in activities:
-        image_url = get_dalle_images(activity, chosen_dest.split('@')[2])  # nopep8
-        print(image_url)
-
-
-if __name__ == "__main__":
-    with open('final.json', 'w') as file:
-        json.dump(get_daily_plan_and_images("2025-01-10", "2025-01-20", "ski", "Zermatt", "Switzerland"), file)  # nopep8
-# http://127.0.0.1:8000/top-5-options?start_month=2025-01-10&end_month=2025-01-20&trip_type=ski&budget=3000
-# http://127.0.0.1:8000/daily-plan-and-images?arrival_date=2025-01-10&departure_date=2025-01-20&trip_type=ski&destination=Zermatt&country=Switzerland
