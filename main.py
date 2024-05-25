@@ -308,13 +308,9 @@ def get_top_5_options(begda: str, endda: str, trip_type: str, budget: int):
     # search for flights
     flights: dict = search_flights(destinations, begda, endda, budget)
 
-    # with open('flights.json', 'w') as file:
-    #     json.dump(flights, file)
     # search for hotels
     hotels: dict = search_hotels(flights, begda, endda)
 
-    # with open('hotels.json', 'w') as file:
-    #     json.dump(hotels, file)
     # get the most expensive hotels
     most_expensive_hotels: dict = get_most_expensive_hotels(hotels)
 

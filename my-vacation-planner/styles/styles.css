@@ -33,7 +33,7 @@ h1 {
 .form-input {
     font-size: 24px;
     /* Larger font size for form inputs */
-    width: 5em;
+    width: 8em;
     margin-bottom: 1rem;
     /* Add some space between inputs */
     margin-left: 1em;
@@ -131,4 +131,17 @@ text {
 button .headline {
     font-size: 18px;
     font-weight: bold;
+}
+
+.images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-text {
+    text-align: center;
+    font-size: 2em;
+    margin-top: 20px;
 }
