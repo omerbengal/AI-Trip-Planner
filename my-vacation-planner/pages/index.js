@@ -12,7 +12,8 @@ export default function Home() {
   const [tripType, setTripType] = useState('');
   const [budget, setBudget] = useState('');
   const [destinations, setDestinations] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loadingDestinations, setLoadingDestinations] = useState(false);
+  const [loadingDailyPlanAndImages, setLoadingDailyPlanAndImages] = useState(false);
   const [showButton, setShowButton] = useState(true);
   const [showDestinations, setShowDestinations] = useState(true);
   const [showDailyPlan, setShowDailyPlan] = useState(false);
@@ -33,116 +34,15 @@ export default function Home() {
     setShowButton(false);
     setShowDestinations(true);
 
-    setLoading(true);
+    setLoadingDestinations(true);
     try {
 
-      // const response = await axios.get(`http://127.0.0.1:8000/top-5-options?start_date=${startDate.format('YYYY-MM-DD')}&end_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&budget=${budget}`);
-      // setDestinations(response.data);
-      const response = {
-        "Val d'Isere@Geneva@Switzerland": {
-          "destination": "Val d'Isere",
-          "city": "Geneva",
-          "country": "Switzerland",
-          "arrival_daytime": "2025-01-10 10:45",
-          "arrival_total_price": 158.0,
-          "arrival_connections_number": "1",
-          "arrival_connections_list": [
-            "Leonardo da VinciFiumicino Airport"
-          ],
-          "departure_daytime": "2025-01-20 20:15",
-          "departure_total_price": 152.0,
-          "departure_connections_number": "1",
-          "departure_connections_list": [
-            "Zurich Airport"
-          ],
-          "flights_total_price": 310.0,
-          "hotel_name": "Jugendstil-Hotel Paxmontana",
-          "hotel_total_price": 1775.0
-        },
-        "Zermatt@Zurich@Switzerland": {
-          "destination": "Zermatt",
-          "city": "Zurich",
-          "country": "Switzerland",
-          "arrival_daytime": "2025-01-10 08:15",
-          "arrival_total_price": 151.0,
-          "arrival_connections_number": "0",
-          "arrival_connections_list": [],
-          "departure_daytime": "2025-01-20 11:15",
-          "departure_total_price": 169.0,
-          "departure_connections_number": "1",
-          "departure_connections_list": [
-            "Athens International Airport \"Eleftherios Venizelos\""
-          ],
-          "flights_total_price": 320.0,
-          "hotel_name": "Hotel Alpen Resort & SPA",
-          "hotel_total_price": 2437.0
-        },
-        "St Anton@Innsbruck@Austria": {
-          "destination": "St Anton",
-          "city": "Innsbruck",
-          "country": "Austria",
-          "arrival_daytime": "2025-01-10 14:50",
-          "arrival_total_price": 195.0,
-          "arrival_connections_number": "1",
-          "arrival_connections_list": [
-            "Athens International Airport \"Eleftherios Venizelos\""
-          ],
-          "departure_daytime": "2025-01-20 14:15",
-          "departure_total_price": 157.0,
-          "departure_connections_number": "1",
-          "departure_connections_list": [
-            "Munich International Airport"
-          ],
-          "flights_total_price": 352.0,
-          "hotel_name": "Gafluna",
-          "hotel_total_price": 2166.0
-        },
-        "Courchevel@Lyon@France": {
-          "destination": "Courchevel",
-          "city": "Lyon",
-          "country": "France",
-          "arrival_daytime": "2025-01-10 17:45",
-          "arrival_total_price": 190.0,
-          "arrival_connections_number": "1",
-          "arrival_connections_list": [
-            "Josep Tarradellas Barcelona-El Prat Airport"
-          ],
-          "departure_daytime": "2025-01-20 17:00",
-          "departure_total_price": 141.0,
-          "departure_connections_number": "1",
-          "departure_connections_list": [
-            "Josep Tarradellas Barcelona-El Prat Airport"
-          ],
-          "flights_total_price": 331.0,
-          "hotel_name": "Crowne Plaza Paris - Republique, an IHG Hotel",
-          "hotel_total_price": 2669.0
-        },
-        "Verbier@Geneva@Switzerland": {
-          "destination": "Verbier",
-          "city": "Geneva",
-          "country": "Switzerland",
-          "arrival_daytime": "2025-01-10 10:45",
-          "arrival_total_price": 158.0,
-          "arrival_connections_number": "1",
-          "arrival_connections_list": [
-            "Leonardo da VinciFiumicino Airport"
-          ],
-          "departure_daytime": "2025-01-20 20:15",
-          "departure_total_price": 152.0,
-          "departure_connections_number": "1",
-          "departure_connections_list": [
-            "Zurich Airport"
-          ],
-          "flights_total_price": 310.0,
-          "hotel_name": "La Ruinette Immobilier - Location & Vente",
-          "hotel_total_price": 2230.0
-        }
-      }
-      setDestinations(response);
+      const response = await axios.get(`http://127.0.0.1:8000/top-5-options?start_date=${startDate.format('YYYY-MM-DD')}&end_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&budget=${budget}`);
+      setDestinations(response.data);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setLoadingDestinations(false);
     }
 
   };
@@ -150,90 +50,14 @@ export default function Home() {
   const getDailyPlanAndImages = async (key) => {
 
     // at this point, the state "destinations" should have the selected destination as the only key in the object
-    setLoading(true);
+    setLoadingDailyPlanAndImages(true);
     try {
-      // const response = await axios.get(`http://127.0.0.1:8000/daily-plan-and-images?arrival_date=${startDate.format('YYYY-MM-DD')}&departure_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&destination=${destinations[key].destination}&country=${destinations[key].country}`);
-      // setDailyPlanAndImagesLinks(response.data);
-      const response = {
-        "daily_plan": {
-          "1": [
-            "Arrive in Zermatt and check into hotel.",
-            "Evening walk in the village and dinner at a local restaurant."
-          ],
-          "2": [
-            "Breakfast at hotel.",
-            "Full day skiing on Gornergrat.",
-            "Lunch at a mountaintop restaurant.",
-            "Dinner in Zermatt village."
-          ],
-          "3": [
-            "Breakfast at hotel.",
-            "Morning skiing on Rothorn.",
-            "Lunch at a mountain hut.",
-            "Spa and wellness session in the afternoon.",
-            "Dinner at hotel."
-          ],
-          "4": [
-            "Breakfast at hotel.",
-            "Day trip with the Glacier Express to nearby resorts.",
-            "Lunch on the train.",
-            "Return to Zermatt for evening relaxation.",
-            "Dinner at a Swiss fondue restaurant."
-          ],
-          "5": [
-            "Breakfast at hotel.",
-            "Full day skiing in the Matterhorn Glacier Paradise area.",
-            "Lunch at the panoramic restaurant.",
-            "Evening walk and photo session of the Matterhorn.",
-            "Dinner at a cozy chalet restaurant."
-          ],
-          "6": [
-            "Breakfast at hotel.",
-            "Snowshoe hiking in the morning.",
-            "Lunch in Zermatt village.",
-            "Afternoon visit to Zermatlantis Matterhorn Museum.",
-            "Dinner at a gourmet restaurant."
-          ],
-          "7": [
-            "Breakfast at hotel.",
-            "Morning tobogganing in Furi.",
-            "Lunch at a mountain restaurant.",
-            "Afternoon relaxation back at hotel.",
-            "Dinner at an Italian restaurant."
-          ],
-          "8": [
-            "Breakfast at hotel.",
-            "Full day skiing on Sunnegga.",
-            "Lunch at a mountainside café.",
-            "Afternoon hot chocolate break at Theodul Glacier.",
-            "Dinner at hotel."
-          ],
-          "9": [
-            "Breakfast at hotel.",
-            "Morning ice climbing session.",
-            "Lunch in Zermatt village.",
-            "Afternoon shopping for souvenirs.",
-            "Dinner at a French bistro."
-          ],
-          "10": [
-            "Breakfast at hotel.",
-            "Leisurely walk around Zermatt for last-minute sightseeing.",
-            "Lunch at a local eatery.",
-            "Prepare for departure."
-          ]
-        },
-        "images": [
-          "https://wallpapercave.com/wp/wp4471360.jpg",
-          "https://wallpapercave.com/wp/wp4471360.jpg",
-          "https://wallpapercave.com/wp/wp4471360.jpg",
-          "https://wallpapercave.com/wp/wp4471360.jpg"
-        ]
-      };
-      setDailyPlanAndImagesLinks(response);
+      const response = await axios.get(`http://127.0.0.1:8000/daily-plan-and-images?arrival_date=${startDate.format('YYYY-MM-DD')}&departure_date=${endDate.format('YYYY-MM-DD')}&trip_type=${tripType}&destination=${destinations[key].destination}&country=${destinations[key].country}`);
+      setDailyPlanAndImagesLinks(response.data);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setLoadingDailyPlanAndImages(false);
       setShowDailyPlan(true);
     }
   };
@@ -322,7 +146,7 @@ export default function Home() {
           </form>
         </div>
 
-        {loading && <p className="loading-text">Loading...</p>}
+        {loadingDestinations && <p className="loading-text">Loading...</p>}
         {showDestinations && (
           <div className="button-group">
             {Object.entries(destinations).map(([key, destination], index) => (
@@ -355,7 +179,7 @@ export default function Home() {
             ))}
           </div>
         )}
-        {loading && <p className="loading-text">Loading...</p>}
+        {loadingDailyPlanAndImages && <p className="loading-text">Loading...</p>}
         {showDailyPlan && (
           <div className="daily-plan-and-images-container" style={{ display: 'flex', justifyContent: 'space-around' }}>
             <div className='daily-plan'>
