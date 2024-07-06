@@ -6,8 +6,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import re
 
-SERPAPI_KEY = '2303fe23b12fb5df4cfa6944849d14dd7a9b472ea6e28ee100c0ff0e99f9ed7d'
-OPENAI_CLIENT = OpenAI(api_key="sk-proj-5hGNQsFq3ncGG0V3vcOeT3BlbkFJej39qWF8lI2qLnJqTOjt")  # nopep8
+SERPAPI_KEY = '' # SERPAPI API KEY
+OPENAI_CLIENT = OpenAI(api_key="sk-proj-........")  # OPENAI API KEY
 
 
 def get_normal_name_without_foreign_chars(str: str) -> str:
